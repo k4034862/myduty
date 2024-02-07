@@ -4,7 +4,6 @@ import HomeView from "../../Views/Home/Home";
 import { Snackbar } from "../../Component/Snackbar";
 import axios from "axios";
 function Home(props) {
-  console.log("test");
   const navigate = useNavigate(); //Route move api
   const [snacks, setSnacks] = React.useState({
     type: "info",
