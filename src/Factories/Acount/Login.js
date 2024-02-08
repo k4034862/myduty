@@ -58,7 +58,7 @@ function Login(props) {
             type: "success",
             message: "로그인에 성공하였습니다.",
           });
-          sessionStorage.setItem("user_id", e.data[0].user_ID);
+          sessionStorage.setItem("userId", e.data[0].user_ID);
           navigate("/Home");
         }
       })

@@ -17,22 +17,45 @@ function Home(props) {
     email: "",
     userTel: "",
   });
+
+  React.useEffect(() => {
+    window.addEventListener("error", (e) => {
+      if (
+        e.message === "ResizeObserver loop limit exceeded" ||
+        e.message ===
+          "ResizeObserver loop completed with undelivered notifications."
+      ) {
+        const resizeObserverErrDiv = document.getElementById(
+          "webpack-dev-server-client- overlay-div"
+        );
+        const resizeObserverErr = document.getElementById(
+          "webpack-dev-server-client-overlay"
+        );
+        if (resizeObserverErr) {
+          resizeObserverErr.setAttribute("style", "display: none");
+        }
+        if (resizeObserverErrDiv) {
+          resizeObserverErrDiv.setAttribute("style", "display: none");
+        }
+      }
+    });
+    ScheduleSelect();
+  }, []);
+
   //시간표 불러오기 API
   const ScheduleSelect = async () => {
+    var userId = sessionStorage.getItem("userId");
     let getData = new URLSearchParams({
-      USER_NM: inputs.userNm,
-      USER_EMAIL: inputs.email,
-      USER_TEL: inputs.userTel,
+      USER_ID: userId,
     });
     await axios
-      .get("/findId", {
+      .get("/scheduleSelect", {
         headers: {
           "Content-Type": `application/json`,
         },
         params: getData,
       })
       .then((e) => {
-        console.log(e.data);
         if (e.data.length === 0) {
           setSnacks({
             ...snacks,
@@ -45,7 +68,7 @@ function Home(props) {
             ...snacks,
             open: true,
             type: "success",
-            message: "아이디는 " + e.data[0].user_ID + "입니다.",
+            message: "조회되었습니다.",
           });
         }
       })
@@ -55,7 +78,11 @@ function Home(props) {
   };
   return (
     <div className="FindId">
-      <HomeView inputs={inputs} setInputs={setInputs} />
+      <HomeView
+        inputs={inputs}
+        setInputs={setInputs}
+        ScheduleSelect={ScheduleSelect}
+      />
       <Snackbar
         type={snacks.type}
         open={snacks.open}
