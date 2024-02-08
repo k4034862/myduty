@@ -35,36 +35,37 @@ function Login(props) {
       USER_ID: inputs.userId,
       PASSWORD: inputs.userPw,
     });
-    await axios
-      .get("/select", {
-        headers: {
-          "Content-Type": `application/json`,
-        },
-        params: getData,
-      })
-      .then((e) => {
-        //데이터가 없으면 아이디나 비밀번호가 맞지않음.
-        if (e.data.length === 0) {
-          setSnacks({
-            ...snacks,
-            open: true,
-            type: "info",
-            message: "아이디나 비밀번호가 틀렷습니다.",
-          });
-        } else {
-          setSnacks({
-            ...snacks,
-            open: true,
-            type: "success",
-            message: "로그인에 성공하였습니다.",
-          });
-          sessionStorage.setItem("userId", e.data[0].user_ID);
-          navigate("/Home");
-        }
-      })
-      .catch((e) => {
-        console.log("error", e);
-      });
+    navigate("/Home");
+    // await axios
+    //   .get("/select", {
+    //     headers: {
+    //       "Content-Type": `application/json`,
+    //     },
+    //     params: getData,
+    //   })
+    //   .then((e) => {
+    //     //데이터가 없으면 아이디나 비밀번호가 맞지않음.
+    //     if (e.data.length === 0) {
+    //       setSnacks({
+    //         ...snacks,
+    //         open: true,
+    //         type: "info",
+    //         message: "아이디나 비밀번호가 틀렷습니다.",
+    //       });
+    //     } else {
+    //       setSnacks({
+    //         ...snacks,
+    //         open: true,
+    //         type: "success",
+    //         message: "로그인에 성공하였습니다.",
+    //       });
+    //       sessionStorage.setItem("user_id", e.data[0].user_ID);
+    //       navigate("/Home");
+    //     }
+    //   })
+    //   .catch((e) => {
+    //     console.log("error", e);
+    //   });
   };
   //회원가입 버튼 API
   const RegisterBtn = async () => {

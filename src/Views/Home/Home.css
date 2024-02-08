@@ -1,3 +1,7 @@
 .fc-toolbar-chunk {
-    font-size: 10px; /* 원하는 글자 크기로 설정하세요 */
+  font-size: 10px; /* 원하는 글자 크기로 설정하세요 */
+}
+.fc-daygrid-day-number {
+  font-size: 11px; /* 원하는 크기로 변경 */
+  font-weight: bold;
 }
