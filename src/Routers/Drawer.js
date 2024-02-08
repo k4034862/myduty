@@ -165,9 +165,9 @@ export default function MiniDrawer() {
       <AppBar position="fixed" open={open}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
-            <Typography variant="h6" noWrap component="div">
+            <IconButton variant="text" onClick={(e) => navigate("/Home")}>
               Home
-            </Typography>
+            </IconButton>
           </div>
           <Button variant="contained" onClick={logOut}>
             로그아웃

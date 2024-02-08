@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import UserGroupView from "../../Views/UserGroup/UserGroup";
 import { Snackbar } from "../../Component/Snackbar";
 import axios from "axios";
-
+import Commons from "../../Services/Common/Common";
 function UserGroup(props) {
   const navigate = useNavigate(); //Route move api
   const [snacks, setSnacks] = React.useState({
@@ -32,15 +32,21 @@ function UserGroup(props) {
     startDate: new Date(newDay.setDate(today.getDate() + 1)),
     endDate: new Date(newDay1.setDate(today1.getDate() + 7)),
   });
-  //시간표 불러오기 API
-  const ScheduleSelect = async () => {
+  React.useEffect(() => {
+    UserGroupSelect();
+  }, []);
+
+  //사용자그룹 불러오기 API
+  const UserGroupSelect = async () => {
+    console.log(Commons.DateFormating(dateInputs.startDate, 4));
+    console.log(Commons.DateFormating(dateInputs.endDate, 4));
+    var userId = sessionStorage.getItem("userId");
+
     let getData = new URLSearchParams({
-      USER_NM: inputs.userNm,
-      USER_EMAIL: inputs.email,
-      USER_TEL: inputs.userTel,
+      USER_ID: userId,
     });
     await axios
-      .get("/findId", {
+      .get("/userGroupSelect", {
         headers: {
           "Content-Type": `application/json`,
         },
@@ -77,7 +83,7 @@ function UserGroup(props) {
         setRowData={setRowData}
         dateInputs={dateInputs}
         setDateInputs={setDateInputs}
-        ScheduleSelect={ScheduleSelect}
+        UserGroupSelect={UserGroupSelect}
       />
       <Snackbar
         type={snacks.type}

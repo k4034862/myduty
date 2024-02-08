@@ -22,24 +22,6 @@ function UserGroup(props) {
   ]);
 
   const [editEvent, setEditEvent] = useState(null); // 편집 중인 이벤트
-  React.useEffect(() => {
-    Init();
-  }, []);
-  const Init = async () => {
-    // Dialog.ProgressBar(true);
-    console.log(props.dateInputs.startDate);
-    console.log(props.dateInputs.endDate);
-    try {
-    } catch (e) {
-      //   setSnacks({
-      //     toggle: true,
-      //     type: "error",
-      //     message: e.message,
-      //   });
-    } finally {
-      //   Dialog.ProgressBar(false);
-    }
-  };
 
   return (
     <Grid container spacing={0} columns={{ xs: 4, sm: 8, md: 12 }}>
