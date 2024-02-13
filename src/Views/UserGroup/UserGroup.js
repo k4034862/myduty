@@ -41,7 +41,7 @@ function UserGroup(props) {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 sx={{
-                  width: "30%",
+                  width: "42%",
                   "& .MuiInputLabel-root.Mui-focused": { color: "#979797" }, //styles the label
                   "& .MuiOutlinedInput-root": {
                     "&:hover > fieldset": { borderColor: "#C7C8CD" },
@@ -62,7 +62,7 @@ function UserGroup(props) {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 sx={{
-                  width: "30%",
+                  width: "42%",
                   "& .MuiInputLabel-root.Mui-focused": { color: "#979797" }, //styles the label
                   "& .MuiOutlinedInput-root": {
                     "&:hover > fieldset": { borderColor: "#C7C8CD" },
