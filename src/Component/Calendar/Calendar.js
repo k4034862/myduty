@@ -16,34 +16,133 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import AddIcon from "@mui/icons-material/Add";
 import SaveIcon from "@mui/icons-material/Save";
 import { AddBox } from "@mui/icons-material";
-
+import axios from "axios";
+import { Snackbar } from "../../Component/Snackbar";
 function Calendar() {
-  // 각 셀에 대한 값을 저장할 배열을 선언합니다.
-  const [cellValues, setCellValues] = useState([]);
-
+  const [snacks, setSnacks] = React.useState({
+    type: "info",
+    open: false,
+    message: "",
+  });
   // 달력 데이터를 사용하여 셀 값의 초기 상태를 설정합니다.
+  const [currentDate, setCurrentDate] = useState(new Date()); //현재날짜
+  const currentYear = currentDate.getFullYear(); //현재 년도
+  const currentMonth = currentDate.getMonth(); //현재 달
 
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth();
-  // React.useEffect(() => {
-  //   // 예시: 현재 달의 달력 데이터 가져오기
-  //   // calendarData = generateCalendarData(currentYear, currentMonth);
-  // }, []);
-  // 현재 날짜를 상태로 관리
+  React.useEffect(() => {
+    const generateCalendarData = (year, month) => {
+      const firstDayOfMonth = new Date(year, month, 1);
+      const lastDayOfMonth = new Date(year, month + 1, 0);
+      const daysInMonth = lastDayOfMonth.getDate();
+      const firstDayOfWeek = firstDayOfMonth.getDay();
 
-  const [cellData, setCellData] = useState([]); //달력 값 배열 담기
+      const calendarData1 = [];
+
+      let currentWeek = [];
+      for (let i = 0; i < firstDayOfWeek; i++) {
+        currentWeek.push({ day: null, label: null }); // 이전 달의 일자로 채우기
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        currentWeek.push({ day, label: null });
+        if (currentWeek.length === 7) {
+          calendarData1.push(currentWeek);
+          currentWeek = [];
+        }
+      }
+
+      if (currentWeek.length > 0) {
+        while (currentWeek.length < 7) {
+          currentWeek.push({ day: null, label: null }); // 다음 달의 일자로 채우기
+        }
+        calendarData1.push(currentWeek);
+      }
+
+      return calendarData1;
+    };
+
+    setCalendarData(generateCalendarData(currentYear, currentMonth));
+  }, [currentYear, currentMonth]); // 현재달 현재년도 변경될 때마다 실행
+
+  const [calendarData, setCalendarData] = useState([]); //달력 값 배열 담기
   const [selected, setSelected] = useState(0); //셀클릭 이벤트
   const [label, setLabel] = useState(""); //라벨
   const [isCardVisible, setCardVisibility] = useState(false); //+ 버튼 클릭 이벤트
+  const updatedCalendarData = calendarData.map((week) => {
+    return week.map((dayObj) => {
+      return { ...dayObj, label: "" }; // label 속성을 빈 문자열로 설정
+    });
+  });
   const toggleCardVisibility = () => {
     setCardVisibility(!isCardVisible); // + 버튼 클릭 이벤트.
     const cellIndex = `${currentDate.getMonth() + 1}/${1}`;
     if (!isCardVisible) {
       setSelected(cellIndex);
     } else {
+      setCalendarData(updatedCalendarData);
       setSelected("");
     }
+  };
+  function formatDate(year, month, day) {
+    //날짜포맷
+    const formattedMonth = (month < 10 ? "0" : "") + month;
+    const formattedDay = (day < 10 ? "0" : "") + day;
+    return `${year}/${formattedMonth}/${formattedDay}`;
+  }
+  // 저장 버튼 이벤트
+  const saveConfirm = async () => {
+    var userId = sessionStorage.getItem("userId"); //로그인된 아이디
+    let saveData = [];
+    calendarData.forEach((week, index) => {
+      week.forEach((dayObj, offset) => {
+        if (
+          dayObj.day === undefined ||
+          dayObj.day == null ||
+          dayObj.label == undefined ||
+          dayObj.label == null ||
+          dayObj.label == ""
+        ) {
+          //날짜와 근무없으면 x
+        } else {
+          saveData.push({
+            USER_ID: userId,
+            WORKING_DATE: formatDate(currentYear, currentMonth + 1, dayObj.day),
+            WORKING_NAME: dayObj.label,
+            CREATE_ID: userId,
+          });
+        }
+      });
+    });
+    console.log(saveData);
+
+    await axios
+      .post(
+        "/calendarInsert",
+        // new URLSearchParams({
+        //   USER_ID: register.userId,
+        //   USER_NM: register.userNm,
+        //   PASSWORD: register.userPw,
+        //   USER_EMAIL: register.email,
+        //   USER_TEL: register.userTel,
+        // })
+        saveData
+      )
+      .then((e) => {
+        setSnacks({
+          ...snacks,
+          open: true,
+          type: "info",
+          message: "저장되었습니다.",
+        });
+      })
+      .catch((e) => {
+        setSnacks({
+          ...snacks,
+          open: true,
+          type: "error",
+          message: "저장실패되었습니다.",
+        });
+      });
   };
   // 이전 달로 이동하는 함수
   const goToPreviousMonth = () => {
@@ -70,68 +169,58 @@ function Calendar() {
     currentDate.getMonth() + 1,
     0
   );
-  //근무 클릭 이벤트
-  const workChangeEvent = (e) => {
-    if (e === "0") {
-      setLabel("E");
-    } else if (e === "1") {
-      setLabel("D");
-    } else if (e === "2") {
-      setLabel("N");
-    } else if (e === "3") {
-      setLabel("V");
-    } else if (e === "4") {
-      setLabel("O");
-    }
-  };
-  const generateCalendarData = (year, month) => {
-    const firstDayOfMonth = new Date(year, month, 1);
-    const lastDayOfMonth = new Date(year, month + 1, 0);
-    const daysInMonth = lastDayOfMonth.getDate();
-    const firstDayOfWeek = firstDayOfMonth.getDay();
-
-    const calendarData = [];
-
-    let currentWeek = [];
-    for (let i = 0; i < firstDayOfWeek; i++) {
-      currentWeek.push(null); // 이전 달의 일자로 채우기
-    }
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      currentWeek.push(day);
-      if (currentWeek.length === 7) {
-        calendarData.push(currentWeek);
-        currentWeek = [];
-      }
-    }
-
-    if (currentWeek.length > 0) {
-      while (currentWeek.length < 7) {
-        currentWeek.push(null); // 다음 달의 일자로 채우기
-      }
-      calendarData.push(currentWeek);
-    }
-
-    return calendarData;
-  };
-  const calendarData = generateCalendarData(currentYear, currentMonth);
-  React.useEffect(() => {
-    calendarData.forEach((week) => {
-      week.forEach((day) => {
-        cellValues.push({
-          date: day, // 날짜
-          value: "", // 각 셀의 값
-        });
+  const workChangeCalendar = (_work) => {
+    calendarData.forEach((week, index) => {
+      week.forEach((dayObj, offset) => {
+        if (dayObj.day === parseInt(selected.split("/")[1], 10)) {
+          // day가 "2/1"인 경우 해당 요소의 value를 "E"로 변경합니다.
+          dayObj.label = _work;
+        }
       });
     });
-    console.log(cellValues[1]);
-  }, []);
-  // 각 셀의 값을 업데이트하는 함수를 정의합니다.
-  const updateCellValue = (index, newValue) => {
-    const newCellValues = [...cellValues];
-    newCellValues[index].value = newValue;
-    setCellValues(newCellValues);
   };
+  //근무 클릭 이벤트
+  const workChangeEvent = (e) => {
+    // calendarData 배열을 순회하면서 day가 "2/1"인 요소를 찾습니다.
+
+    if (e === "0") {
+      //이브닝
+      setLabel("E");
+      workChangeCalendar("E");
+      setSelected(
+        `${currentMonth + 1}/${parseInt(selected.split("/")[1]) + 1}` //다음칸이동
+      );
+    } else if (e === "1") {
+      //데이
+      setLabel("D");
+      workChangeCalendar("D");
+      setSelected(
+        `${currentMonth + 1}/${parseInt(selected.split("/")[1]) + 1}` //다음칸이동
+      );
+    } else if (e === "2") {
+      //나이트
+      setLabel("N");
+      workChangeCalendar("N");
+      setSelected(
+        `${currentMonth + 1}/${parseInt(selected.split("/")[1]) + 1}` //다음칸이동
+      );
+    } else if (e === "3") {
+      //휴가
+      setLabel("V");
+      workChangeCalendar("V");
+      setSelected(
+        `${currentMonth + 1}/${parseInt(selected.split("/")[1]) + 1}` //다음칸이동
+      );
+    } else if (e === "4") {
+      //오프
+      setLabel("O");
+      workChangeCalendar("O");
+      setSelected(
+        `${currentMonth + 1}/${parseInt(selected.split("/")[1]) + 1}`
+      );
+    }
+  };
+
   // 현재 월의 날짜를 배열에 담음
   const days = [];
   for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
@@ -197,7 +286,7 @@ function Calendar() {
             <Button
               sx={{ p: 0, m: 0, minWidth: "40px" }}
               size="small"
-              onClick={goToNextMonth}
+              onClick={saveConfirm}
             >
               <SaveIcon></SaveIcon>
             </Button>
@@ -228,57 +317,56 @@ function Calendar() {
             <TableBody>
               {calendarData.map((week, index) => (
                 <TableRow key={`week-${index}`}>
-                  {week.map((day, offset) => {
-                    if (day === null) {
-                      return <TableCell key={`empty-${index}-${offset}`} />;
-                    }
-                    const cellDate = new Date(currentYear, currentMonth, day);
-                    const cellIndex = `${currentMonth + 1}/${day}`;
-
-                    return (
-                      <TableCell
-                        key={`cell-${index}-${offset}`}
-                        className={`
-                ${cellDate.getMonth() !== currentMonth ? "other-month" : ""}
-                ${selected === cellIndex ? "selected-cell" : ""}
-              `}
-                        onClick={() => {
-                          setSelected(cellIndex);
+                  {week.map((dayObj, offset) => (
+                    <TableCell
+                      key={`cell-${index}-${offset}`}
+                      className={`
+            ${dayObj.day === null ? "other-month" : ""}
+            ${
+              selected === `${currentMonth + 1}/${dayObj.day}`
+                ? "selected-cell"
+                : ""
+            }
+          `}
+                      onClick={() => {
+                        setSelected(`${currentMonth + 1}/${dayObj.day}`);
+                      }}
+                      style={{ padding: "5px" }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          height: "100%",
                         }}
-                        style={{ padding: "5px" }}
                       >
                         <div
                           style={{
+                            flex: 4,
                             display: "flex",
-                            flexDirection: "column",
-                            height: "100%",
+                            alignItems: "center",
+                            justifyContent: "center",
                           }}
                         >
-                          <div
-                            style={{
-                              flex: 4,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            {day}
-                          </div>
-                          <div style={{ flex: 6 }}>
-                            {/* 추가 정보를 입력할 수 있는 텍스트 박스 */}
+                          {dayObj.day}
+                        </div>
+                        <div style={{ flex: 6 }}>
+                          {/* 라벨이 존재하는 경우에만 렌더링합니다. */}
+                          {dayObj.label && (
                             <InputLabel
                               onClick={() => {
-                                setSelected(cellIndex);
+                                setSelected(
+                                  `${currentMonth + 1}/${dayObj.day}`
+                                );
                               }}
                             >
-                              {/* {cellValues[cellIndex].value} */}
+                              {dayObj.label}
                             </InputLabel>
-                          </div>
+                          )}
                         </div>
-                        {/* 추가 정보를 입력할 수 있는 텍스트 박스 */}
-                      </TableCell>
-                    );
-                  })}
+                      </div>
+                    </TableCell>
+                  ))}
                 </TableRow>
               ))}
             </TableBody>
@@ -293,6 +381,7 @@ function Calendar() {
                 display: "flex",
                 justifyContent: "space-between",
                 marginBottom: "2px",
+                marginTop: "10px",
               }}
             >
               <Button
@@ -351,6 +440,17 @@ function Calendar() {
           </Card>
         </Grid>
       )}
+      <Snackbar
+        type={snacks.type}
+        open={snacks.open}
+        message={snacks.message}
+        onClose={() => {
+          setSnacks({
+            ...snacks,
+            open: false,
+          });
+        }}
+      />
     </Grid>
   );
 }
