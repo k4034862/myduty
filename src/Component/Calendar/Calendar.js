@@ -75,15 +75,14 @@ function Calendar() {
         for (let i = 0; i < workData.length; i++) {
             // 두 번째 날짜를 생성합니다.
             const compareWorkDate = new Date(workData[i].WORKING_DATE); //저장된 데이터랑 비교하기위한 조회된 년도 달
-
-            // 월과 일이 같은지 확인합니다.
+            // 년과 월이 같은지 확인합니다.
             const isSameMonthAndDay =
                 compareCurrentDate.getMonth() === compareWorkDate.getMonth() &&
                 compareCurrentDate.getFullYear() === compareWorkDate.getFullYear();
             if (isSameMonthAndDay) {
                 //월과 일이 같으면
                 workSaveData.push({
-                    day: compareWorkDate.getDay(),
+                    day: compareWorkDate.getDate(),
                     label: workData[i].WORKING_NAME,
                 });
             }
@@ -107,11 +106,12 @@ function Calendar() {
             }
             calendarData1.push(currentWeek);
         }
-        calendarData.forEach((week) => {
+        calendarData1.forEach((week) => {
             week.forEach((day) => {
-                if (day.day === 1) {
-                    // day가 1인 요소의 label에 값을 설정합니다.
-                    day.label = 'your_value_here'; // 여기에 원하는 값을 넣으세요
+                for (let i = 0; i < workSaveData.length; i++) {
+                    if (workSaveData[i].day == day.day) {
+                        day.label = workSaveData[i].label;
+                    }
                 }
             });
         });
@@ -152,6 +152,7 @@ function Calendar() {
                     message: '저장되었습니다.',
                 });
                 setCardVisibility(false);
+                ScheduleSelect();
             })
             .catch((e) => {
                 setSnacks({
