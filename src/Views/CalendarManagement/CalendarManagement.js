@@ -46,7 +46,7 @@ function CalendarManagement(props) {
 
   return (
     <Grid container spacing={0} columns={{ xs: 4, sm: 8, md: 12 }}>
-      <Grid item xs={12}>
+      <Grid xs={12}>
         <Card
           sx={{
             display: "flex",
@@ -69,7 +69,7 @@ function CalendarManagement(props) {
           </IconButton>
         </Card>
       </Grid>
-      <Grid item xs={12}>
+      <Grid xs={12}>
         <Card>
           <div
             className="ag-theme-quartz"
